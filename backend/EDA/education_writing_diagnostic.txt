@@ -1,0 +1,167 @@
+================================================================================
+          EDUCATION VS. WRITING DIAGNOSTIC REPORT (DATA SCIENCE AUDIT)
+================================================================================
+Project: AI Prompt Generator Using Data Science and Natural Language Processing
+Date: 2026-10-12
+Model: LinearSVC(class_weight="balanced")
+Evaluation Split: 80/20 Stratified (1,336 Train / 335 Test)
+
+1. EXECUTIVE SUMMARY & PROBLEM STATEMENT
+--------------------------------------------------------------------------------
+The user tested a strongly educational prompt on the live platform, and the
+system classified it as "Writing". Formal error analysis demonstrates that this
+is not an isolated edge case, but the single largest source of classification
+failure in the model:
+
+- 24 out of 33 Education test samples (72.73%) are misclassified as Writing.
+- Education exhibits the lowest recall of all five intent classes: 27.27%.
+- Education -> Writing alone accounts for 23.53% of all errors (24 of 102).
+- The mutual confusion between Writing and Education totals 35 errors (34.3%
+  of all misclassifications in the pipeline).
+
+2. QUANTITATIVE ERROR METRICS
+--------------------------------------------------------------------------------
+Test Set Distribution (N = 335):
+- Total Education test samples        : 33  (9.85% of test set)
+- Correctly classified Education      : 9   (True Positives)
+- Education -> Writing misclassifications: 24  (False Negatives for Education)
+- Education -> Coding misclassifications : 0
+- Education -> Data Analysis misclass. : 0
+- Education -> Image Gen misclass.     : 0
+- Writing -> Education misclassifications: 11  (False Positives for Education)
+- Total Writing test samples          : 180 (53.73% of test set)
+- Correctly classified Writing        : 152 (True Positives for Writing)
+
+Per-Class Performance Comparison:
+- Education Recall                    : 27.27% ( 9 / 33)
+- Writing Recall                      : 84.44% (152 / 180)
+- Education Precision                 : 34.62% ( 9 / 26)
+- Writing Precision                   : 70.70% (152 / 215)
+- Education F1-Score                  : 30.51%
+- Writing F1-Score                    : 76.96%
+
+3. LEXICAL OVERLAP & FEATURE COEFFICIENT ANALYSIS
+--------------------------------------------------------------------------------
+Investigation of LinearSVC hyperplane weights (model.coef_) across 10,000 TF-IDF
+features reveals why the model favors Writing over Education:
+
+A. The 10 Target Pedagogical Keywords:
+--------------------------------------------------------------------------------
+Keyword      In Vocab  Edu Coef   Writing Coef  Train Occurrences (Edu vs Writing)
+--------------------------------------------------------------------------------
+explain      Yes       +1.9341    -1.1493       17 Edu  / 10 Writing (also 15 Code, 12 DA)
+history      Yes       +1.7280    -1.0017        5 Edu  /  1 Writing
+lesson       Yes       +0.6023    -0.4006        1 Edu  /  1 Writing (extremely rare)
+tutorial     Yes       +0.2955    -0.1743        1 Edu  /  1 Writing (5 in Coding)
+education    Yes       +0.1615    +0.0328        2 Edu  /  7 Writing (Writing dominated!)
+learn        Yes       +0.1288    -0.1386        6 Edu  /  8 Writing (10 in Coding)
+quiz         Yes        0.0000    +0.2651        0 Edu  /  2 Writing (Favors Writing!)
+student      Yes       -0.2134    +0.3457        1 Edu  /  5 Writing (Penalizes Education!)
+concept      Yes       -0.3215    +0.1913        1 Edu  /  4 Writing (Penalizes Education!)
+teach        No          N/A        N/A          0 Edu  /  1 Writing (Not in vocab!)
+--------------------------------------------------------------------------------
+
+Findings on Target Keywords:
+- Only TWO keywords ('explain', 'history') have strong positive weights for Education.
+- Three keywords ('student', 'quiz', 'concept') have ZERO or NEGATIVE weights
+  for Education, and actively increase the margin toward Writing!
+- In the training set, the word 'education' appears 7 times in Writing samples
+  and only 2 times in Education samples.
+- The word 'student' appears 5 times in Writing samples and only 1 time in Education.
+- The word 'teach' is completely absent from the 10,000 TF-IDF vocabulary.
+
+B. Top Features for Writing (Diffuse & Expansive):
+- people (+0.94), going (+0.85), company (+0.78), write (+0.76), friend (+0.75),
+  answer (+0.67), screenshot (+0.66), event (+0.65), explanation (+0.62), things (+0.62).
+- Broad connective words frequent in prompts ('need', 'provide', 'skills', 'english',
+  'practice') carry positive weights for Writing (+0.12 to +0.45) and negative
+  weights for Education (-0.16 to -0.77).
+
+4. DATA SCIENCE ROOT CAUSES OF EDUCATION MISCLASSIFICATION
+--------------------------------------------------------------------------------
+1. Severe Dataset Class Imbalance:
+   Writing accounts for 53.59% of training data (716 samples), whereas Education
+   accounts for only 9.96% (133 samples) — a 5.38x imbalance ratio. Despite using
+   class_weight="balanced", the sheer lexical volume and n-gram diversity of
+   Writing enables it to claim generic expository vocabulary.
+
+2. Inconsistent Ground-Truth Annotation (Label Noise):
+   Inspection of actual dataset rows shows ambiguous labeling:
+   - Writing prompts asking for educational explanations:
+     "Please explain the difference between a chemist and a chemical engineer" -> Labeled Writing.
+     "Can you provide a brief survey of the major world religions" -> Labeled Writing.
+     "Can French Defence initial move defend against four move checkmate? Rationale first" -> Labeled Writing.
+   - Education prompts asking for written deliverables:
+     "Write blog article comparing The university of manchester mba program to PMP certificate" -> Labeled Education.
+     "write a story about The significance of number 127 is part of the Illuminati" -> Labeled Education.
+   This mutual cross-contamination prevents the linear model from separating the
+   underlying communicative intent from the topic matter.
+
+3. Lack of Specialized Educational Anchors:
+   Unlike Coding (which has syntax anchors: 'def', 'class', 'python', 'function')
+   or Image Generation ('cinematic', 'render', 'portrait', 'lighting'), Education
+   prompts naturally express themselves through plain discursive prose:
+   "What is the modulus of Elasticity in its relation to mechanics?"
+   "when did the us acquire the last of the territory that would make up the 48 contiguous states?"
+   Without specialized lexical anchors, these sentences map into Writing space.
+
+5. INSPECTION OF CODING HEURISTIC IN classifier_service.py
+--------------------------------------------------------------------------------
+Function inspected: _looks_like_coding_request(text: str)
+- Purpose: Keyword rule override for software engineering queries ('react', 'python',
+  'javascript', 'function', 'api endpoint', 'sql query', etc.).
+- Effect on Education:
+  a. It does NOT cause the Education -> Writing error, because its override target
+     is strictly 'Coding'.
+  b. It can trigger an unintended override from Education -> Coding if an educational
+     prompt references programming or technical concepts (e.g., "Explain how the
+     python memory manager works to an undergraduate student" will be forced to Coding).
+  c. Indentation observation: Line 113 (`confidence = max(confidence, 0.80)`) sets
+     an artificial 0.80 confidence floor on ALL predictions regardless of heuristic
+     match, which conceals margin ambiguity between Writing and Education.
+
+6. REPRESENTATIVE MISCLASSIFIED PROMPTS
+--------------------------------------------------------------------------------
+Case A: Explicit Pedagogical Intent Misclassified as Writing:
+"I teach middle school English as a second language to Chinese students. I need
+lesson plans for study skills. Please provide speaking practice for 8th and 9the
+grade students as well as resources. You can include links."
+-> Actual: Education | Predicted: Writing
+-> Reason: Positive Writing tokens ('need' +0.40, 'provide' +0.34, 'english' +0.45,
+   'student' +0.35) overwhelm Education tokens ('lesson' +0.60, 'school' +0.89).
+
+Case B: Conceptual Science Query Misclassified as Writing:
+"What is the modulus of Elasticity in its relation to mechanics?"
+-> Actual: Education | Predicted: Writing
+-> Reason: Scientific query with zero high-weight Education tokens; generic phrasing
+   falls back to the majority-class decision boundary.
+
+Case C: Historical Inquiry Misclassified as Writing:
+"when did the us acquire the last of the territory that would make up the 48 contiguous states?"
+-> Actual: Education | Predicted: Writing
+-> Reason: Factual historical query lacking the specific token 'history'; falls into Writing.
+
+7. RECOMMENDATIONS FOR NEXT DATA SCIENCE ACTIONS
+--------------------------------------------------------------------------------
+Based strictly on the diagnostic evidence, the following sequential improvements
+are recommended:
+
+1. Targeted Dataset Augmentation for Education (Highest Academic Rigor):
+   - Augment the 133 training samples in Education to at least 350-400 high-quality
+     academic, conceptual, and didactic examples.
+   - Introduce balanced occurrences of core pedagogical vocabulary ('student', 'teach',
+     'quiz', 'lesson', 'curriculum', 'lecture', 'concept', 'homework', 'tutorial').
+
+2. Ground-Truth Disambiguation / Label Cleaning:
+   - Audit the cross-boundary examples where explanatory prompts are labeled 'Writing'
+     and story/blog prompts are labeled 'Education'.
+
+3. Class-Specific Decision Threshold / Intercept Adjustment:
+   - In LinearSVC decision function, adjust the decision intercept or threshold
+     offset specifically for Education to calibrate sensitivity and boost recall
+     from 27.27% toward parity with other classes.
+
+================================================================================
+DIAGNOSTIC STATUS: COMPLETE
+No production code, model artifacts, or services were modified.
+================================================================================

@@ -1,0 +1,76 @@
+intent,rank,feature,coefficient,ngram_type
+Coding,1,function,2.5218,unigram
+Coding,2,code,2.2129,unigram
+Coding,3,class,2.0462,unigram
+Coding,4,python,1.8421,unigram
+Coding,5,javascript,1.8117,unigram
+Coding,6,react,1.8041,unigram
+Coding,7,method,1.7372,unigram
+Coding,8,html,1.6329,unigram
+Coding,9,java,1.512,unigram
+Coding,10,api,1.3499,unigram
+Coding,11,component,1.3422,unigram
+Coding,12,string,1.3378,unigram
+Coding,13,descriptions,1.3282,unigram
+Coding,14,algorithm,1.3145,unigram
+Coding,15,json,1.2739,unigram
+Data Analysis,1,dataset,1.8033,unigram
+Data Analysis,2,data,1.2628,unigram
+Data Analysis,3,case,1.2332,unigram
+Data Analysis,4,python,1.2094,unigram
+Data Analysis,5,analysis,1.1242,unigram
+Data Analysis,6,pandas,1.0115,unigram
+Data Analysis,7,column,0.9848,unigram
+Data Analysis,8,interpreting,0.9416,unigram
+Data Analysis,9,indicators,0.913,unigram
+Data Analysis,10,clustering,0.9052,unigram
+Data Analysis,11,regression,0.8749,unigram
+Data Analysis,12,want write,0.872,bigram
+Data Analysis,13,measured,0.8649,unigram
+Data Analysis,14,data visualization,0.8553,bigram
+Data Analysis,15,visualization,0.8553,unigram
+Education,1,explain,1.9341,unigram
+Education,2,history,1.728,unigram
+Education,3,file,1.4419,unigram
+Education,4,world,1.3852,unigram
+Education,5,overview,1.3576,unigram
+Education,6,does,1.3199,unigram
+Education,7,god,1.251,unigram
+Education,8,come,1.2242,unigram
+Education,9,meow,1.224,unigram
+Education,10,psychology,1.2009,unigram
+Education,11,legal,1.1962,unigram
+Education,12,a_n,1.183,unigram
+Education,13,discuss,1.1631,unigram
+Education,14,taken,1.1455,unigram
+Education,15,contemporary,1.1087,unigram
+Image Generation,1,generate image,1.7891,bigram
+Image Generation,2,style,1.7486,unigram
+Image Generation,3,portrait,1.3447,unigram
+Image Generation,4,vibrant,1.2567,unigram
+Image Generation,5,image,1.1048,unigram
+Image Generation,6,soft,1.1023,unigram
+Image Generation,7,cinematic,1.1014,unigram
+Image Generation,8,photography,1.0989,unigram
+Image Generation,9,dramatic,1.0074,unigram
+Image Generation,10,neon,0.965,unigram
+Image Generation,11,illustration,0.9118,unigram
+Image Generation,12,vector,0.856,unigram
+Image Generation,13,atmosphere,0.8536,unigram
+Image Generation,14,render,0.8418,unigram
+Image Generation,15,epic,0.8078,unigram
+Writing,1,people,0.9386,unigram
+Writing,2,going,0.8453,unigram
+Writing,3,company,0.7835,unigram
+Writing,4,write,0.76,unigram
+Writing,5,friend,0.7486,unigram
+Writing,6,answer,0.6674,unigram
+Writing,7,screenshot,0.6628,unigram
+Writing,8,event,0.6516,unigram
+Writing,9,ui,0.6494,unigram
+Writing,10,countries,0.6411,unigram
+Writing,11,party,0.6297,unigram
+Writing,12,explanation,0.6245,unigram
+Writing,13,youtube,0.6208,unigram
+Writing,14,let,0.6194,unigram
+Writing,15,things,0.6155,unigram

@@ -1,0 +1,107 @@
+{
+  "model_name": "Linear SVM",
+  "algorithm": "LinearSVC",
+  "model_type": "LinearSVC",
+  "task": "5-class text intent classification",
+  "dataset": {
+    "name": "prompt_refinement_dataset_cleaned.csv",
+    "samples": 1671,
+    "train_samples": 1336,
+    "test_samples": 335
+  },
+  "split": {
+    "test_size": 0.20,
+    "random_state": 42,
+    "stratified": true
+  },
+  "features": {
+    "type": "TF-IDF",
+    "max_features": 10000,
+    "stop_words": "english",
+    "ngram_range": [
+      1,
+      2
+    ],
+    "sublinear_tf": true
+  },
+  "vectorizer_config": {
+    "max_features": 10000,
+    "stop_words": "english",
+    "ngram_range": [
+      1,
+      2
+    ],
+    "sublinear_tf": true
+  },
+  "classes": [
+    "Coding",
+    "Writing",
+    "Education",
+    "Image Generation",
+    "Data Analysis"
+  ],
+  "training": {
+    "class_weight": "balanced"
+  },
+  "train_samples": 1336,
+  "test_samples": 335,
+  "evaluation": {
+    "accuracy": 0.6955,
+    "balanced_accuracy": 0.6321,
+    "macro_precision": 0.7188,
+    "macro_recall": 0.6321,
+    "macro_f1": 0.6679,
+    "weighted_precision": 0.6909,
+    "weighted_recall": 0.6955,
+    "weighted_f1": 0.6859
+  },
+  "evaluation_metrics": {
+    "Accuracy": 0.6955,
+    "Balanced Accuracy": 0.6321,
+    "Macro Precision": 0.7188,
+    "Macro Recall": 0.6321,
+    "Macro F1": 0.6679,
+    "Weighted Precision": 0.6909,
+    "Weighted Recall": 0.6955,
+    "Weighted F1": 0.6859
+  },
+  "baseline": {
+    "majority_class": "Writing",
+    "accuracy": 0.5373,
+    "absolute_improvement_pp": 15.82,
+    "relative_improvement_pct": 29.44
+  },
+  "per_class_metrics": {
+    "Coding": {
+      "precision": 0.7143,
+      "recall": 0.5435,
+      "f1-score": 0.6173,
+      "support": 92
+    },
+    "Data Analysis": {
+      "precision": 0.8235,
+      "recall": 0.7000,
+      "f1-score": 0.7568,
+      "support": 20
+    },
+    "Education": {
+      "precision": 0.3462,
+      "recall": 0.2727,
+      "f1-score": 0.3051,
+      "support": 33
+    },
+    "Image Generation": {
+      "precision": 1.0000,
+      "recall": 0.8000,
+      "f1-score": 0.8889,
+      "support": 10
+    },
+    "Writing": {
+      "precision": 0.7070,
+      "recall": 0.8444,
+      "f1-score": 0.7696,
+      "support": 180
+    }
+  },
+  "updated_at": "2026-10-12 19:55:00"
+}
